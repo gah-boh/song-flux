@@ -1,0 +1,24 @@
+{
+  "name": "song-dispatcher",
+  "version": "1.0.0",
+  "description": "A dispatcher to use with SOng Flux",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/gah-boh/song-dispatcher.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/gah-boh/song-dispatcher/issues"
+  },
+  "homepage": "https://github.com/gah-boh/song-dispatcher",
+  "devDependencies": {
+    "jasmine-core": "^2.1.3",
+    "karma": "^0.12.28",
+    "karma-jasmine": "^0.3.2"
+  }
+}
