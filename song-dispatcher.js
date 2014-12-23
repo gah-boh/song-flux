@@ -9,27 +9,33 @@
     }
 }(this, function() {
 
-    function Dispatcher() {
-        var _lastID = 1;
-        var _prefix = 'ID_';
+    function Dispatcher(moduleName) {
+        this.id = 'D_' + moduleName;
+        this.currentCallbacks = null;
 
-        this._callbacks = {};
+        this._callbacks = new WeakMap();
         this._isPending = {};
         this._isHandled = {};
         this._isDispatching = false;
         this._pendingPayload = null;
 
-        this.register = function(callback) {
-            var id = _prefix + _lastID++;
-            this._callbacks[id] = callback;
+        var lastID = 0;
+        var callbackPrefix = this.id + '_ID_';
+
+        this.register = function(actionCtor, callback) {
+            if(!this._callbacks.has(actionCtor)) {
+                this._callbacks.set(actionCtor, {});
+            }
+            var id = callbackPrefix + (++lastID);
+            this._callbacks.get(actionCtor)[id] = callback;
             return id;
         };
 
-        this.unregister = function(id) {
-            if (!this._callbacks.hasOwnProperty(id)) {
-                throw new Error('Unregister: id does not exist');
+        this.unregister = function(action, id) {
+            if (!this._callbacks.has(action)) {
+                throw new Error('Unregister: action does not exist');
             }
-            delete this._callbacks[id];
+            delete this._callbacks.get(action)[id];
         };
 
         this.waitFor = function(ids) {
@@ -47,13 +53,15 @@
             }, this);
         };
 
-        this.dispatch = function(payload) {
+        this.dispatch = function(action) {
+            var actionType = action.constructor;
             if (this._isDispatching) {
                 throw new Error('Dispatch.dispatch: Cannot dispatch in the middle of a dispatch');
             }
-            this._startDispatching(payload);
+            this._startDispatching(action);
+            this.currentCallbacks = this._callbacks.get(actionType);
             try {
-                for (var id in this._callbacks) {
+                for (var id in this.currentCallbacks) {
                     if(this._isPending[id]) {
                         continue;
                     }
@@ -65,19 +73,18 @@
             }
         };
 
-
         this.isDispatching = function() {
             return this._isDispatching;
         };
 
         this._invokeCallback = function(id) {
             this._isPending[id] = true;
-            this._callbacks[id](this._pendingPayload);
+            this.currentCallbacks[id](this._pendingPayload);
             this._isHandled[id] = true;
         };
 
         this._startDispatching = function(payload) {
-            for (var id in this._callbacks) {
+            for (var id in this.currentCallbacks) {
                 this._isPending[id] = false;
                 this._isHandled[id] = false;
             }
@@ -86,6 +93,7 @@
         };
 
         this._stopDispatching = function() {
+            this.currentCallbacks = null;
             this._pendingPayload = null;
             this._isDispatching = false;
         };
@@ -97,7 +105,7 @@
         var dispatchers = new WeakMap();
 
         function createDispatcher(ngModule) {
-            var dispatcher = new Dispatcher();
+            var dispatcher = new Dispatcher(ngModule.name);
             dispatchers.set(ngModule, dispatcher);
             return dispatcher;
         }
