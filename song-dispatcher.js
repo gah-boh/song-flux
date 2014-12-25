@@ -44,7 +44,7 @@
             }
             ids.forEach(function(id, i) {
                 if(this._isPending[i]) {
-                    if(this._isHandling[i]) {
+                    if(!this._isHandled[i]) {
                         throw new Error('waitFor: detected circular dependency');
                     }
                     return;
