@@ -75,10 +75,10 @@ describe('Song Dispatcher', function() {
                 Action = function Action() {};
             });
 
-            it('should return an id prefixed by the moduleId', function() {
+            it('should return an id prefixed by the moduleId and action constructor name', function() {
                 var callback = jasmine.createSpy('callback');
                 var id = sut.register(Action, callback);
-                expect(id).toBe('D_testModule_ID_1');
+                expect(id).toBe('D_testModule_Action_1');
             });
 
             it('should return a new id for every registration', function() {
@@ -86,12 +86,8 @@ describe('Song Dispatcher', function() {
                 var callbackTwo = jasmine.createSpy('callbackTwo');
                 var idOne = sut.register(Action, callbackOne);
                 var idTwo = sut.register(Action, callbackTwo);
-                expect(idOne).toBe('D_testModule_ID_1');
-                expect(idTwo).toBe('D_testModule_ID_2');
-            });
-
-            xit('should return an unregister function maybe?', function() {
-                
+                expect(idOne).toBe('D_testModule_Action_1');
+                expect(idTwo).toBe('D_testModule_Action_2');
             });
 
         });
@@ -114,11 +110,11 @@ describe('Song Dispatcher', function() {
                 expect(callback).toHaveBeenCalled();
             });
 
-            it('should set currentCallbacks to object of id', function() {
+            it('should set _currentCallbacks to object of id', function() {
                 spyOn(sut, '_stopDispatching');
                 var action = new Action();
                 sut.dispatch(action);
-                expect(sut.currentCallbacks.D_testModule_ID_1).toBe(callback);
+                expect(sut._currentCallbacks.D_testModule_Action_1).toBe(callback);
             });
 
 
@@ -126,10 +122,10 @@ describe('Song Dispatcher', function() {
 
         describe('_stopDispatching', function() {
 
-            it('should set currentCallbacks to null', function() {
-                sut.currentCallbacks = {};
+            it('should set _currentCallbacks to null', function() {
+                sut._currentCallbacks = {};
                 sut._stopDispatching();
-                expect(sut.currentCallbacks).toBe(null);
+                expect(sut._currentCallbacks).toBe(null);
             });
 
         });

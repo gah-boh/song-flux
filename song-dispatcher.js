@@ -11,7 +11,7 @@
 
     function Dispatcher(moduleName) {
         this.id = 'D_' + moduleName;
-        this.currentCallbacks = null;
+        this._currentCallbacks = null;
 
         this._callbacks = new WeakMap();
         this._isPending = {};
@@ -20,13 +20,13 @@
         this._pendingPayload = null;
 
         var lastID = 0;
-        var callbackPrefix = this.id + '_ID_';
 
         this.register = function(actionCtor, callback) {
             if(!this._callbacks.has(actionCtor)) {
                 this._callbacks.set(actionCtor, {});
             }
-            var id = callbackPrefix + (++lastID);
+            var callbackPrefix = this.id+'_'+actionCtor.name+'_';
+            var id = callbackPrefix+(++lastID);
             this._callbacks.get(actionCtor)[id] = callback;
             return id;
         };
@@ -59,9 +59,9 @@
                 throw new Error('Dispatch.dispatch: Cannot dispatch in the middle of a dispatch');
             }
             this._startDispatching(action);
-            this.currentCallbacks = this._callbacks.get(actionType);
+            this._currentCallbacks = this._callbacks.get(actionType);
             try {
-                for (var id in this.currentCallbacks) {
+                for (var id in this._currentCallbacks) {
                     if(this._isPending[id]) {
                         continue;
                     }
@@ -79,12 +79,12 @@
 
         this._invokeCallback = function(id) {
             this._isPending[id] = true;
-            this.currentCallbacks[id](this._pendingPayload);
+            this._currentCallbacks[id](this._pendingPayload);
             this._isHandled[id] = true;
         };
 
         this._startDispatching = function(payload) {
-            for (var id in this.currentCallbacks) {
+            for (var id in this._currentCallbacks) {
                 this._isPending[id] = false;
                 this._isHandled[id] = false;
             }
@@ -93,7 +93,7 @@
         };
 
         this._stopDispatching = function() {
-            this.currentCallbacks = null;
+            this._currentCallbacks = null;
             this._pendingPayload = null;
             this._isDispatching = false;
         };
