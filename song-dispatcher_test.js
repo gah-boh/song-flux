@@ -143,7 +143,7 @@ describe('Song Dispatcher', function() {
             });
 
             it('should not call the callback once unregistered', function() {
-                sut.unregister(Action, registrationId);
+                sut.unregister(registrationId);
                 sut.dispatch(new Action());
                 expect(callback).not.toHaveBeenCalled();
             });

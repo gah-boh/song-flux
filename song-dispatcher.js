@@ -14,6 +14,7 @@
         this._currentCallbacks = null;
 
         this._callbacks = new WeakMap();
+        this._deregistrations = {};
         this._isPending = {};
         this._isHandled = {};
         this._isDispatching = false;
@@ -25,17 +26,24 @@
             if(!this._callbacks.has(actionCtor)) {
                 this._callbacks.set(actionCtor, {});
             }
+
             var callbackPrefix = this.id+'_'+actionCtor.name+'_';
             var id = callbackPrefix+(++lastID);
             this._callbacks.get(actionCtor)[id] = callback;
+
+            this._deregistrations[id] = (function() {
+                if (!this._callbacks.has(actionCtor)) {
+                    throw new Error('Unregister: action does not exist');
+                }
+                delete this._callbacks.get(actionCtor)[id];
+            }).bind(this);
+
             return id;
         };
 
-        this.unregister = function(action, id) {
-            if (!this._callbacks.has(action)) {
-                throw new Error('Unregister: action does not exist');
-            }
-            delete this._callbacks.get(action)[id];
+        this.unregister = function(id) {
+            this._deregistrations[id]();
+            delete this._deregistrations[id];
         };
 
         this.waitFor = function(ids) {
