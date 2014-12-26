@@ -117,6 +117,13 @@ describe('Song Dispatcher', function() {
                 expect(sut._currentCallbacks.D_testModule_Action_1).toBe(callback);
             });
 
+            it('should be able to dispatch an array of actions', function() {
+                var toDispatch = [new Action(), new Action(), new Action()];
+                toDispatch.forEach(function(action) {
+                    sut.dispatch(action);
+                });
+                expect(callback.calls.count()).toBe(3);
+            });
 
         });
 

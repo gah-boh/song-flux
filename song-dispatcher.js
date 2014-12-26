@@ -66,8 +66,8 @@
             if (this._isDispatching) {
                 throw new Error('Dispatch.dispatch: Cannot dispatch in the middle of a dispatch');
             }
-            this._startDispatching(action);
             this._currentCallbacks = this._callbacks.get(actionType);
+            this._startDispatching(action);
             try {
                 for (var id in this._currentCallbacks) {
                     if(this._isPending[id]) {
