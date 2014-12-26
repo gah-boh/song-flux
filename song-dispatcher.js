@@ -18,7 +18,7 @@
         this._isPending = {};
         this._isHandled = {};
         this._isDispatching = false;
-        this._pendingPayload = null;
+        this._pendingAction = null;
 
         var lastID = 0;
 
@@ -62,11 +62,9 @@
         };
 
         this.dispatch = function(action) {
-            var actionType = action.constructor;
             if (this._isDispatching) {
                 throw new Error('Dispatch.dispatch: Cannot dispatch in the middle of a dispatch');
             }
-            this._currentCallbacks = this._callbacks.get(actionType);
             this._startDispatching(action);
             try {
                 for (var id in this._currentCallbacks) {
@@ -87,22 +85,23 @@
 
         this._invokeCallback = function(id) {
             this._isPending[id] = true;
-            this._currentCallbacks[id](this._pendingPayload);
+            this._currentCallbacks[id](this._pendingAction);
             this._isHandled[id] = true;
         };
 
-        this._startDispatching = function(payload) {
+        this._startDispatching = function(action) {
+            this._currentCallbacks = this._callbacks.get(action.constructor);
             for (var id in this._currentCallbacks) {
                 this._isPending[id] = false;
                 this._isHandled[id] = false;
             }
-            this._pendingPayload = payload;
+            this._pendingAction = action;
             this._isDispatching = true;
         };
 
         this._stopDispatching = function() {
             this._currentCallbacks = null;
-            this._pendingPayload = null;
+            this._pendingAction = null;
             this._isDispatching = false;
         };
         
