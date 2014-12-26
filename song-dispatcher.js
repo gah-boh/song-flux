@@ -119,7 +119,7 @@
         }
 
         return {
-            getDispatcher: function(moduleName) {
+            get: function(moduleName) {
                 var ngModule = angular.module(moduleName);
                 return (dispatchers.get(ngModule) || createDispatcher(ngModule));
             }

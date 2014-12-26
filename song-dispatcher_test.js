@@ -9,7 +9,7 @@ describe('Song Dispatcher', function() {
         var moduleA;
         var moduleB;
 
-        describe('getDispatcher', function() {
+        describe('get', function() {
 
             beforeEach(function() {
                 moduleA = angular.module('moduleA', []);
@@ -21,25 +21,25 @@ describe('Song Dispatcher', function() {
             }));
 
             it('should return a new dispatcher for a module if has not been created', function() {
-                var dispatcher = sut.getDispatcher(moduleA.name);
+                var dispatcher = sut.get(moduleA.name);
                 expect(dispatcher.register).toBeDefined();
             });
 
             it('should return a dispatcher for a module if it already has been created', function() {
-                var firstRequest = sut.getDispatcher(moduleA.name);
-                var secondRequest = sut.getDispatcher(moduleA.name);
+                var firstRequest = sut.get(moduleA.name);
+                var secondRequest = sut.get(moduleA.name);
                 expect(firstRequest).toBe(secondRequest);
             });
 
             it('should return a different dispatcher per module', function() {
-                var dispatcherA = sut.getDispatcher(moduleA.name);
-                var dispatcherB = sut.getDispatcher(moduleB.name);
+                var dispatcherA = sut.get(moduleA.name);
+                var dispatcherB = sut.get(moduleB.name);
                 expect(dispatcherA).not.toBe(dispatcherB);
             });
 
             it('should throw an error if the module does not exist', function() {
                 expect(function(){
-                    sut.getDispatcher('idonotexist');
+                    sut.get('idonotexist');
                 }).toThrowError();
             });
 
@@ -56,7 +56,7 @@ describe('Song Dispatcher', function() {
         });
 
         beforeEach(inject(function(songDispatcherFactory) {
-            sut = songDispatcherFactory.getDispatcher(testModule.name);
+            sut = songDispatcherFactory.get(testModule.name);
         }));
 
         describe('construction', function() {
