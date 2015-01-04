@@ -2,47 +2,42 @@ describe('Song Dispatcher', function() {
 
     var sut;
 
-    beforeEach(module('songDispatcher'));
+    beforeEach(module('songFlux'));
 
-    describe('factory', function() {
-
+    describe('getDispatcher', function() {
         var moduleA;
         var moduleB;
 
-        describe('get', function() {
+        beforeEach(function() {
+            moduleA = angular.module('moduleA', []);
+            moduleB = angular.module('moduleB', []);
+        });
 
-            beforeEach(function() {
-                moduleA = angular.module('moduleA', []);
-                moduleB = angular.module('moduleB', []);
-            });
+        beforeEach(inject(function(songFactory) {
+            sut = songFactory;
+        }));
 
-            beforeEach(inject(function(songDispatcherFactory) {
-                sut = songDispatcherFactory;
-            }));
+        it('should return a new dispatcher for a module if has not been created', function() {
+            var dispatcher = sut.getDispatcher(moduleA.name);
+            expect(dispatcher.register).toBeDefined();
+        });
 
-            it('should return a new dispatcher for a module if has not been created', function() {
-                var dispatcher = sut.get(moduleA.name);
-                expect(dispatcher.register).toBeDefined();
-            });
+        it('should return a dispatcher for a module if it already has been created', function() {
+            var firstRequest = sut.getDispatcher(moduleA.name);
+            var secondRequest = sut.getDispatcher(moduleA.name);
+            expect(firstRequest).toBe(secondRequest);
+        });
 
-            it('should return a dispatcher for a module if it already has been created', function() {
-                var firstRequest = sut.get(moduleA.name);
-                var secondRequest = sut.get(moduleA.name);
-                expect(firstRequest).toBe(secondRequest);
-            });
+        it('should return a different dispatcher per module', function() {
+            var dispatcherA = sut.getDispatcher(moduleA.name);
+            var dispatcherB = sut.getDispatcher(moduleB.name);
+            expect(dispatcherA).not.toBe(dispatcherB);
+        });
 
-            it('should return a different dispatcher per module', function() {
-                var dispatcherA = sut.get(moduleA.name);
-                var dispatcherB = sut.get(moduleB.name);
-                expect(dispatcherA).not.toBe(dispatcherB);
-            });
-
-            it('should throw an error if the module does not exist', function() {
-                expect(function(){
-                    sut.get('idonotexist');
-                }).toThrowError();
-            });
-
+        it('should throw an error if the module does not exist', function() {
+            expect(function(){
+                sut.getDispatcher('idonotexist');
+            }).toThrowError();
         });
 
     });
@@ -55,8 +50,8 @@ describe('Song Dispatcher', function() {
             testModule = angular.module('testModule', []);
         });
 
-        beforeEach(inject(function(songDispatcherFactory) {
-            sut = songDispatcherFactory.get(testModule.name);
+        beforeEach(inject(function(songFactory) {
+            sut = songFactory.getDispatcher(testModule.name);
         }));
 
         describe('construction', function() {
@@ -159,4 +154,69 @@ describe('Song Dispatcher', function() {
 
     });
 
+    describe('createAction', function() {
+        var TestAction;
+        var createdAction;
+
+        var testModule;
+        var dispatcherMock;
+
+        beforeEach(function() {
+            testModule = angular.module('testModule', []);
+        });
+
+        beforeEach(inject(function(songFactory) {
+            sut = songFactory;
+            dispatcherMock = jasmine.createSpyObj('dispatcherMock', ['dispatch']);
+            spyOn(sut, 'getDispatcher').and.returnValue(dispatcherMock);
+        }));
+
+        beforeEach(function() {
+            TestAction = function TestAction(aProp) {
+                this.aProp = aProp;
+            };
+            TestAction.prototype.customMethod = jasmine.createSpy('customMethod');
+
+            createdAction = sut.createAction(TestAction, 'testModule');
+        });
+
+        it('should return a factory function for the action', function() {
+            var result = createdAction();
+            expect(result instanceof TestAction).toBe(true);
+        });
+
+        it('should create an instance of the action with the same constructor', function() {
+            var result = createdAction();
+            expect(result.constructor).toBe(TestAction);
+        });
+
+        it('the new instance should have a dispatcher property', function() {
+            var result = createdAction();
+            expect(result.dispatcher).toBe(dispatcherMock);
+        });
+
+        it('should have kept the actions constructor function logic', function() {
+            var result = createdAction('testProp');
+            expect(result.aProp).toBe('testProp');
+        });
+
+        it('should have a dispatch method from the base action', function() {
+            var result = createdAction();
+            expect(result.dispatch).toBeDefined();
+        });
+
+        it('dispatch should call the instances dispatcher', function() {
+            var result = createdAction();
+            result.dispatch();
+            expect(dispatcherMock.dispatch).toHaveBeenCalledWith(result);
+        });
+
+        it('should add methods from the custom action prototype', function() {
+            var result = createdAction();
+            expect(result.customMethod).toBeDefined();
+        });
+
+    });
+
 });
+

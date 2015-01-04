@@ -107,8 +107,8 @@
         
     }
 
-    var songDispatcher= angular.module('songDispatcher', []);
-    songDispatcher.factory('songDispatcherFactory', function() {
+    var songFlux= angular.module('songFlux', []);
+    songFlux.factory('songFactory', function() {
         var dispatchers = new WeakMap();
 
         function createDispatcher(ngModule) {
@@ -118,13 +118,32 @@
         }
 
         return {
-            get: function(moduleName) {
+            getDispatcher: function(moduleName) {
                 var ngModule = angular.module(moduleName);
                 return (dispatchers.get(ngModule) || createDispatcher(ngModule));
+            },
+            createAction: function(ctor, dispatcherModuleName) {
+                function Action(dispatcherModule) {
+                    this.dispatcher = dispatcherModule;
+                }
+                Action.prototype.dispatch = function() {
+                    this.dispatcher.dispatch(this);
+                };
+
+                var dispatcher = this.getDispatcher(dispatcherModuleName);
+                var child = function(args) {
+                    Action.call(this, dispatcher);
+                    ctor.apply(this, args);
+                };
+                child.prototype = angular.extend(ctor.prototype, Action.prototype);
+
+                return function() {
+                    return new child(arguments);
+                };
             }
         };
     });
 
-    return songDispatcher;
+    return songFlux;
 }));
 
