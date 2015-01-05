@@ -122,19 +122,19 @@
                 var ngModule = angular.module(moduleName);
                 return (dispatchers.get(ngModule) || createDispatcher(ngModule));
             },
-            createAction: function(ctor, dispatcherModuleName) {
+            createAction: function(Action, dispatcherModuleName) {
                 var dispatcher = this.getDispatcher(dispatcherModuleName);
-                var child = function(args) {
+                var ActionFactory = function ActionFactory(args) {
                     this.dispatcher = dispatcher;
-                    ctor.apply(this, args);
+                    Action.apply(this, args);
                 };
-                var dispatchFn = ctor.prototype.dispatch || function() { this.dispatcher.dispatch(this); };
+                var dispatchFn = Action.prototype.dispatch || function() { this.dispatcher.dispatch(this); };
 
-                child.prototype = Object.create(ctor.prototype);
-                angular.extend(child.prototype, {dispatch: dispatchFn});
+                ActionFactory.prototype = Object.create(Action.prototype);
+                angular.extend(ActionFactory.prototype, {dispatch: dispatchFn});
 
                 return function() {
-                    return new child(arguments);
+                    return new ActionFactory(arguments);
                 };
             }
         };
