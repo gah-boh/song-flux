@@ -190,7 +190,7 @@ describe('Song Dispatcher', function() {
             expect(result.constructor).toBe(TestAction);
         });
 
-        it('the new instance should have a dispatcher property', function() {
+        it('should have a dispatcher property on the created instance', function() {
             var result = createdAction();
             expect(result.dispatcher).toBe(dispatcherMock);
         });
@@ -211,9 +211,28 @@ describe('Song Dispatcher', function() {
             expect(dispatcherMock.dispatch).toHaveBeenCalledWith(result);
         });
 
+        it('should allow to change the dispatcher', function() {
+            var result = createdAction();
+            var otherDispatcher = jasmine.createSpyObj('otherDispatcher', ['dispatch']);
+            result.dispatcher = otherDispatcher;
+            result.dispatch();
+            expect(otherDispatcher.dispatch).toHaveBeenCalled();
+            expect(dispatcherMock.dispatch).not.toHaveBeenCalled();
+        });
+
+        it('should call the custom dispatch function if supplied', function() {
+            var newActionDispatch = jasmine.createSpy('NewAction.dispatch');
+            function NewAction() {}
+            NewAction.prototype.dispatch = newActionDispatch;
+            var action = sut.createAction(NewAction, 'testModule');
+            action().dispatch();
+            expect(newActionDispatch).toHaveBeenCalled();
+        });
+
         it('should add methods from the custom action prototype', function() {
             var result = createdAction();
-            expect(result.customMethod).toBeDefined();
+            result.customMethod();
+            expect(TestAction.prototype.customMethod).toHaveBeenCalled();
         });
 
     });

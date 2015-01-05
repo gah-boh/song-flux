@@ -123,19 +123,15 @@
                 return (dispatchers.get(ngModule) || createDispatcher(ngModule));
             },
             createAction: function(ctor, dispatcherModuleName) {
-                function Action(dispatcherModule) {
-                    this.dispatcher = dispatcherModule;
-                }
-                Action.prototype.dispatch = function() {
-                    this.dispatcher.dispatch(this);
-                };
-
                 var dispatcher = this.getDispatcher(dispatcherModuleName);
                 var child = function(args) {
-                    Action.call(this, dispatcher);
+                    this.dispatcher = dispatcher;
                     ctor.apply(this, args);
                 };
-                child.prototype = angular.extend(ctor.prototype, Action.prototype);
+                var dispatchFn = ctor.prototype.dispatch || function() { this.dispatcher.dispatch(this); };
+
+                child.prototype = Object.create(ctor.prototype);
+                angular.extend(child.prototype, {dispatch: dispatchFn});
 
                 return function() {
                     return new child(arguments);
