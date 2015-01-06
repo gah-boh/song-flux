@@ -121,21 +121,6 @@
             getDispatcher: function(moduleName) {
                 var ngModule = angular.module(moduleName);
                 return (dispatchers.get(ngModule) || createDispatcher(ngModule));
-            },
-            createAction: function(Action, dispatcherModuleName) {
-                var dispatcher = this.getDispatcher(dispatcherModuleName);
-                var ActionFactory = function ActionFactory(args) {
-                    this.dispatcher = dispatcher;
-                    Action.apply(this, args);
-                };
-                var dispatchFn = Action.prototype.dispatch || function() { this.dispatcher.dispatch(this); };
-
-                ActionFactory.prototype = Object.create(Action.prototype);
-                angular.extend(ActionFactory.prototype, {dispatch: dispatchFn});
-
-                return function() {
-                    return new ActionFactory(arguments);
-                };
             }
         };
     });
