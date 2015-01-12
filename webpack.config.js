@@ -1,8 +1,10 @@
 module.exports = {
-    entry: './song-dispatcher.js',
+    entry: {
+        'song-flux': './song-flux.js'
+    },
     output: {
-        path: './dist',
-        filename: 'song-dispatcher.js',
+        path: 'browser/',
+        filename: '[name].js',
         library: 'song-dispatcher',
         libraryTarget: 'umd'
     }
