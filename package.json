@@ -2,7 +2,7 @@
   "name": "song-flux",
   "version": "0.0.0",
   "description": "A dispatcher to use with SOng Flux",
-  "main": "song-dispatcher.js",
+  "main": "song-flux.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
