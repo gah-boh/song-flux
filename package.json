@@ -1,6 +1,6 @@
 {
   "name": "song-flux",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "A dispatcher to use with SOng Flux",
   "main": "song-flux.js",
   "scripts": {
@@ -10,7 +10,7 @@
     "type": "git",
     "url": "https://github.com/gah-boh/song-flux.git"
   },
-  "author": "",
+  "author": "Gabriel Obregon",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/gah-boh/song-flux/issues"
