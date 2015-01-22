@@ -120,6 +120,24 @@ describe('Song Dispatcher', function() {
                 expect(callback.calls.count()).toBe(3);
             });
 
+            describe('with action inheritance', function() {
+
+                var ChildAction;
+
+                beforeEach(function() {
+                    ChildAction = function ChildAction() {
+                        this.constructor = Action;
+                    };
+                });
+
+                it('should call the callback registered with parent action', function() {
+                    var childAction = new ChildAction();
+                    sut.dispatch(childAction);
+                    expect(callback).toHaveBeenCalled();
+                });
+
+            });
+
         });
 
         describe('_stopDispatching', function() {
