@@ -17,8 +17,8 @@ module.exports = function(config) {
     files: [
       'bower_components/angular/angular.js',
       'bower_components/angular-mocks/angular-mocks.js',
-      'song-dispatcher.js',
-      'song-dispatcher_test.js',
+      'song-flux.js',
+      'song-flux_test.js',
       'decorators/o-action.js',
       'decorators/o-action_test.js'
     ],
