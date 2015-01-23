@@ -1,6 +1,6 @@
 {
   "name": "song-flux",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "A dispatcher to use with SOng Flux",
   "main": "song-flux.js",
   "scripts": {
